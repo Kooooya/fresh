@@ -31,7 +31,7 @@ func flushEvents() {
 
 func start() {
 	loopIndex := 0
-	buildDelay := buildDelay()
+	buildDelay := setting.BuildDelay()
 
 	started := false
 
@@ -42,8 +42,8 @@ func start() {
 			eventName := <-startChannel
 
 			mainLog("receiving first event %s", eventName)
-			mainLog("sleeping for %d milliseconds", buildDelay)
-			time.Sleep(buildDelay * time.Millisecond)
+			mainLog("sleeping for %d", buildDelay)
+			time.Sleep(buildDelay)
 			mainLog("flushing events")
 
 			flushEvents()
@@ -100,20 +100,27 @@ func setEnvVars() {
 		os.Setenv("RUNNER_WD", wd)
 	}
 
-	for k, v := range settings {
+	for k, v := range setting {
 		key := strings.ToUpper(fmt.Sprintf("%s%s", envSettingsPrefix, k))
 		os.Setenv(key, v)
 	}
 }
 
-// Watches for file changes in the root directory.
-// After each file system event it builds and (re)starts the application.
-func Start() {
+func Init(configPath string) {
+	initSettings(configPath)
+	initEnv()
+}
+
+func initEnv() {
 	initLimit()
-	initSettings()
 	initLogFuncs()
 	initFolders()
 	setEnvVars()
+}
+
+// Watches for file changes in the root directory.
+// After each file system event it builds and (re)starts the application.
+func Start() {
 	watch()
 	start()
 	startChannel <- "/"

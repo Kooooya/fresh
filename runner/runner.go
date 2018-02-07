@@ -3,12 +3,14 @@ package runner
 import (
 	"io"
 	"os/exec"
+	"path/filepath"
 )
 
 func run() bool {
 	runnerLog("Running...")
 
-	cmd := exec.Command(buildPath())
+	path, err := filepath.Abs(setting.BuildPath())
+	cmd := exec.Command(filepath.Base(path))
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
