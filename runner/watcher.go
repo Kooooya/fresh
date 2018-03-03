@@ -32,7 +32,8 @@ func watchFolder(path string) {
 	err = watcher.Watch(path)
 
 	if err != nil {
-		fatal(err)
+		// fatal(err)
+		logger.Println(err)
 	}
 }
 
